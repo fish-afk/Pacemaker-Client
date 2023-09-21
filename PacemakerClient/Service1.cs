@@ -19,10 +19,12 @@ namespace PacemakerClient
 
         protected override void OnStart(string[] args)
         {
+            Console.Write("Hellow");
         }
 
         protected override void OnStop()
         {
+            Console.Write("Hellow 1");
         }
     }
 }
