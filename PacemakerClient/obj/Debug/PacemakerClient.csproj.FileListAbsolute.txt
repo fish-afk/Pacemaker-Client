@@ -2,9 +2,11 @@ C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\bin\Debug\Pacemak
 C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\bin\Debug\PacemakerClient.exe
 C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\bin\Debug\PacemakerClient.pdb
 C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\obj\Debug\PacemakerClient.csproj.AssemblyReference.cache
-C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\obj\Debug\PacemakerClient.csproj.SuggestedBindingRedirects.cache
 C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\obj\Debug\PacemakerClient.ProjectInstaller.resources
 C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\obj\Debug\PacemakerClient.csproj.GenerateResource.cache
 C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\obj\Debug\PacemakerClient.csproj.CoreCompileInputs.cache
 C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\obj\Debug\PacemakerClient.exe
 C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\obj\Debug\PacemakerClient.pdb
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\bin\Debug\Newtonsoft.Json.dll
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\bin\Debug\Newtonsoft.Json.xml
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerClient\obj\Debug\PacemakerClient.csproj.CopyComplete

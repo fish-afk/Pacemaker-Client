@@ -1,0 +1,15 @@
+StatusCode: 200, ReasonPhrase: 'OK', Version: 1.1, Content: System.Net.Http.StreamContent, Headers:
+{
+  RateLimit-Policy: 150;w=180
+  RateLimit-Limit: 150
+  RateLimit-Remaining: 149
+  RateLimit-Reset: 81
+  Connection: keep-alive
+  Keep-Alive: timeout=5
+  Date: Sat, 23 Sep 2023 13:25:52 GMT
+  ETag: W/"1eb-zKJbgkHiPc3f9+CgkQxd03/Bg4c"
+  X-Powered-By: Express
+  Content-Length: 491
+  Content-Type: application/json; charset=utf-8
+}
+{"status":true,"JwtToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjY1MGVlNzYwODA1ZThhODkzNjEwZjQwMyIsImV4cCI6MTY5NTQ3Nzk1MiwicHJpdnMiOiJ2aWN0aW0iLCJpYXQiOjE2OTU0NzU1NTJ9.lQ0IZhHH3vVTfCi0q-M18wawupKHCzAl-oGG9OLCxSE","RefreshToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IjY1MGVlNzYwODA1ZThhODkzNjEwZjQwMyIsImV4cCI6MTcxMTIwMDM1Mjg4MCwicHJpdnMiOiJ2aWN0aW0iLCJpYXQiOjE2OTU0NzU1NTJ9.4KCjz5cNOZ5qJzQmM65RPEEF5nuXDS6Ry9zvDiMgcAw","Username":"650ee760805e8a893610f403"}
