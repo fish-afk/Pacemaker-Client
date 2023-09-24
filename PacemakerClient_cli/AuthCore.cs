@@ -30,5 +30,15 @@ namespace PacemakerClient
         }
         public AuthCore() { }
 
+
+        public string refresh()
+        {
+            string jwtToken = "";
+
+            // to be implemented 
+
+            return jwtToken;
+        }
+
     }
 }

