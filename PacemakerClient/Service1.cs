@@ -119,7 +119,7 @@ namespace PacemakerClient
         {
             HttpClient Client = new HttpClient();
 
-            string jsonData = "{\"username\": \"" + authObj.Username + "\", \"jwt-key\": \"" + authObj.JwtToken + "\"}";
+            string jsonData = "{\"username\": \"" + authObj.Username + "\", \"jwt_key\": \"" + authObj.JwtToken + "\"}";
 
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 

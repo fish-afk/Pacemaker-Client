@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
+using System.Net.Http;
 
 namespace PacemakerClient
 {
     [Serializable()]
+
     public class AuthCore : ISerializable
     {
         public string RefreshToken { get; set; }
@@ -33,11 +35,8 @@ namespace PacemakerClient
 
         public string refresh()
         {
-            string jwtToken = "";
-
-            // to be implemented 
-
-            return jwtToken;
+            // tba
+            return "";
         }
 
     }

@@ -5,9 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace PacemakerClient
 {
+    public class refreshResponseJson
+    {
+        public string freshJwt { get; set; }
+        public bool status { get; set; }
+    }
+
     [Serializable()]
     public class AuthCore : ISerializable
     {
@@ -31,13 +40,37 @@ namespace PacemakerClient
         public AuthCore() { }
 
 
-        public string refresh()
+        public async Task<bool> refresh()
         {
-            string jwtToken = "";
+            HttpClient Client = new HttpClient();
 
-            // to be implemented 
+            string jsonData = "{\"username\": \"" + Username + "\", \"refreshToken\": \"" + RefreshToken + "\"}";
 
-            return jwtToken;
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            var response = await Client.PostAsync(PacemakerClient_cli.Program.server_hostname + "/core/getcmd", content);
+
+            refreshResponseJson refreshResponse;
+
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                refreshResponse = JsonConvert.DeserializeObject<refreshResponseJson>(jsonString);
+
+
+                if (refreshResponse.status == true && refreshResponse.freshJwt.Length > 0)
+                {
+                    JwtToken = refreshResponse.freshJwt;
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return false;
         }
 
     }

