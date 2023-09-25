@@ -42,19 +42,22 @@ namespace PacemakerClient
 
         public async Task<bool> refresh()
         {
+            Console.WriteLine("Hit");
             HttpClient Client = new HttpClient();
 
             string jsonData = "{\"username\": \"" + Username + "\", \"refreshToken\": \"" + RefreshToken + "\"}";
 
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-            var response = await Client.PostAsync(PacemakerClient_cli.Program.server_hostname + "/core/getcmd", content);
+            var response = await Client.PostAsync(PacemakerClient_cli.Program.server_hostname + "/core/refresh", content);
 
             refreshResponseJson refreshResponse;
 
+            string jsonString = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(jsonString);
             if (response.IsSuccessStatusCode)
             {
-                string jsonString = await response.Content.ReadAsStringAsync();
+                
                 refreshResponse = JsonConvert.DeserializeObject<refreshResponseJson>(jsonString);
 
 
