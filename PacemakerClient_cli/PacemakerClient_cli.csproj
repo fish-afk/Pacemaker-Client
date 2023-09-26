@@ -47,7 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AntiDmp.cs" />
     <Compile Include="AuthCore.cs" />
     <Compile Include="Cmd.cs" />
     <Compile Include="CmdResult.cs" />

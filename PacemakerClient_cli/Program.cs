@@ -230,7 +230,6 @@ namespace PacemakerClient_cli
             else
             {
                 DbgPrt2.HideOSThreads();
-                AntiDmp.AntiDump();
 
                 if (File.Exists("authObject.dat"))
                 {

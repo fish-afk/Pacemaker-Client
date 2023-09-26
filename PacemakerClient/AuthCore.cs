@@ -5,12 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Xml.Linq;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using System.Net.Http;
 
 namespace PacemakerClient
 {
-    [Serializable()]
+    public class refreshResponseJson
+    {
+        public string freshJwt { get; set; }
+        public bool status { get; set; }
+    }
 
+    [Serializable()]
     public class AuthCore : ISerializable
     {
         public string RefreshToken { get; set; }
@@ -33,10 +40,40 @@ namespace PacemakerClient
         public AuthCore() { }
 
 
-        public string refresh()
+        public async Task<bool> refresh()
         {
-            // tba
-            return "";
+            Console.WriteLine("Hit");
+            HttpClient Client = new HttpClient();
+
+            string jsonData = "{\"username\": \"" + Username + "\", \"refreshToken\": \"" + RefreshToken + "\"}";
+
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            var response = await Client.PostAsync(PacemakerClient.Service1.server_hostname + "/core/refresh", content);
+
+            refreshResponseJson refreshResponse;
+
+            string jsonString = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(jsonString);
+            if (response.IsSuccessStatusCode)
+            {
+
+                refreshResponse = JsonConvert.DeserializeObject<refreshResponseJson>(jsonString);
+
+
+                if (refreshResponse.status == true && refreshResponse.freshJwt.Length > 0)
+                {
+                    JwtToken = refreshResponse.freshJwt;
+
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return false;
         }
 
     }
