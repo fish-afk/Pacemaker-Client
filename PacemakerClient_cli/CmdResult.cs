@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
-namespace PacemakerClient
+namespace PacemakerClient_cli
 {
     public class CmdResult
     {
@@ -13,6 +14,7 @@ namespace PacemakerClient
         public string commandId { get; set; }
         public string jwt_key { get; set; }
 
+        
         public bool EncryptResult(string Result)
         {
             // to be implemented

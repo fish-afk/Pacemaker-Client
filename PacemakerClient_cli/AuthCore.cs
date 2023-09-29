@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Net.Http;
 
-namespace PacemakerClient
+namespace PacemakerClient_cli
 {
     public class refreshResponseJson
     {

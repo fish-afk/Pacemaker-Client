@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.IO;
+using static System.Net.Mime.MediaTypeNames;
 
-namespace PacemakerClient
+namespace PacemakerClient_cli
 {
     public class Cmd
     {
@@ -23,10 +24,11 @@ namespace PacemakerClient
             process.StartInfo.RedirectStandardInput = true;
             process.StartInfo.RedirectStandardOutput = false;
             process.StartInfo.UseShellExecute = false;
+            process.StartInfo.CreateNoWindow = true;
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
 
             process.Start();
-            process.StandardInput.WriteLine(command + " > result.txt");
+            process.StandardInput.WriteLine(B64.b64Decode(command) + " > result.txt");
             process.StandardInput.Flush();
             process.StandardInput.Close();
             process.WaitForExit();
@@ -48,6 +50,8 @@ namespace PacemakerClient
                 return "result file not created !";
             }
         }
+
+        
 
         public string DecryptCmd(string cmd)
         {
