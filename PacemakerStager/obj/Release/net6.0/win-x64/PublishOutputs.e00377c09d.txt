@@ -1,0 +1,2 @@
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerStager\bin\Release\net6.0\win-x64\publish\PacemakerStager.pdb
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PacemakerStager\bin\Release\net6.0\win-x64\publish\PacemakerStager.exe
