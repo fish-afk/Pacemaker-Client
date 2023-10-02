@@ -64,6 +64,7 @@ namespace PacemakerStager
                 if (refreshResponse.status == true && refreshResponse.freshJwt.Length > 0)
                 {
                     JwtToken = refreshResponse.freshJwt;
+                    Console.WriteLine("updated jwt");
 
                     return true;
                 }
