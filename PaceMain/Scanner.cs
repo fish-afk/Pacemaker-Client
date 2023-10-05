@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PacemakerStager
+namespace PaceMain
 {
 
     public class Scanner
@@ -117,6 +117,7 @@ namespace PacemakerStager
             BadProcessnameList.Add("scylla_x64");
             BadProcessnameList.Add("scylla_x86");
             BadProcessnameList.Add("dnSpy");
+            BadProcessnameList.Add("ILSpy");
             BadProcessnameList.Add("dnSpy.Console");
             BadProcessnameList.Add("protection_id");
             BadProcessnameList.Add("x64dbg");
@@ -126,7 +127,6 @@ namespace PacemakerStager
             BadProcessnameList.Add("ImportREC");
             BadProcessnameList.Add("IMMUNITYDEBUGGER");
             BadProcessnameList.Add("MegaDumper");
-            
 
             BadWindowTextList.Add("HTTPDebuggerUI");
             BadWindowTextList.Add("HTTPDebuggerSvc");
@@ -138,6 +138,7 @@ namespace PacemakerStager
             BadWindowTextList.Add("disassembly");
             BadWindowTextList.Add("scylla");
             BadWindowTextList.Add("Debug");
+            BadWindowTextList.Add("ILSpy");
             BadWindowTextList.Add("[CPU");
             BadWindowTextList.Add("Immunity");
             BadWindowTextList.Add("WinDbg");

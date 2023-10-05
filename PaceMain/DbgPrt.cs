@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PacemakerStager
+namespace PaceMain
 {
     public enum PROCESSINFOCLASS : int
     {

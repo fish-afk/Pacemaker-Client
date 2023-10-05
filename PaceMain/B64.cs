@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PacemakerStager
+namespace PaceMain
 {
     internal class B64
     {

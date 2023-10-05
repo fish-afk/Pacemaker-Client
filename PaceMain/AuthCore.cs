@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Net.Http;
 
-namespace PacemakerStager
+namespace PaceMain
 {
     public class refreshResponseJson
     {
@@ -23,12 +23,14 @@ namespace PacemakerStager
         public string RefreshToken { get; set; }
         public string Username { get; set; }
         public string JwtToken { get; set; }
+        public string heartBeatInterval { get; set; }
 
         public AuthCore(SerializationInfo info, StreamingContext context) // for constructing deserialized objects out of a file...
         {
             RefreshToken = (string)info.GetValue("RefreshToken", typeof(string));
             Username = (string)info.GetValue("Username", typeof(string));
             JwtToken = (string)info.GetValue("JwtToken", typeof(string));
+            heartBeatInterval = (string)info.GetValue("heartBeatInterval", typeof(string));
         }
 
         public virtual void GetObjectData(SerializationInfo info, StreamingContext context)  // for serializing objects into a stream of bytes for file storage..
@@ -36,6 +38,7 @@ namespace PacemakerStager
             info.AddValue("RefreshToken", RefreshToken);
             info.AddValue("Username", Username);
             info.AddValue("JwtToken", JwtToken);
+            info.AddValue("heartBeatInterval", heartBeatInterval);
         }
         public AuthCore() { }
 
@@ -49,7 +52,7 @@ namespace PacemakerStager
 
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-            var response = await Client.PostAsync(PacemakerStager.Program.server_hostname + "/core/refresh", content);
+            var response = await Client.PostAsync(PaceMain.Program.server_hostname + "/core/refresh", content);
 
             refreshResponseJson refreshResponse;
 

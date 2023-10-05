@@ -1,0 +1,10 @@
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PaceMain\bin\Debug\PaceMain.exe.config
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PaceMain\bin\Debug\PaceMain.exe
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PaceMain\bin\Debug\PaceMain.pdb
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PaceMain\bin\Debug\Newtonsoft.Json.dll
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PaceMain\bin\Debug\Newtonsoft.Json.xml
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PaceMain\obj\Debug\PaceMain.csproj.AssemblyReference.cache
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PaceMain\obj\Debug\PaceMain.csproj.CoreCompileInputs.cache
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PaceMain\obj\Debug\PaceMain.csproj.CopyComplete
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PaceMain\obj\Debug\PaceMain.exe
+C:\Users\SIHAAB\Desktop\maldev\PacemakerClient\PaceMain\obj\Debug\PaceMain.pdb

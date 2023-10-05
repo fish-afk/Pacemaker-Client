@@ -7,7 +7,7 @@ using System.Diagnostics;
 using System.IO;
 
 
-namespace PacemakerStager
+namespace PaceMain
 {
     public class Cmd
     {
