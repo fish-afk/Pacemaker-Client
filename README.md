@@ -5,3 +5,5 @@ The first project is the stager.
 the second one is the service executable or normal background exe for persistence.
 
 Disclaimer: This is solely for education purposes only.
+
+code for c2 server: https://github.com/fish-afk/PacemakerC2
